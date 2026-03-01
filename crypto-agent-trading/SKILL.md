@@ -7,6 +7,19 @@ metadata:
 
 # Skill: crypto-agent-trading
 
+## Agent Capability Requirements
+
+This skill requires your agent platform to support the following capabilities. If your platform lacks any **required** capability, the skill will not function.
+
+| Capability | Required | Details |
+|---|---|---|
+| **Shell command execution** | Yes | Must be able to run `npx tsx ./scripts/...` and capture stdout |
+| **Environment variables** | Yes | Must read `CDC_API_KEY` and `CDC_API_SECRET` from the shell environment |
+| **JSON parsing** | Yes | Must parse structured JSON from script stdout to extract fields |
+| **Multi-turn conversation** | Yes | Trading uses a quote → confirm flow that spans multiple user turns |
+| **Persistent memory** | No | Used for `confirmation_required` preference. If unsupported, default to always confirming trades |
+| **Elapsed-time awareness** | No | Used to check quote expiry (`countdown` field). If unsupported, always attempt confirmation and handle `invalid_quotation` errors gracefully |
+
 ## CRITICAL: How This Skill Works
 
 **You MUST use the TypeScript scripts for ALL API interactions. NEVER call the API directly with `curl`, `fetch`, or any other HTTP method.**
@@ -22,7 +35,7 @@ The scripts handle request signing, error handling, and response formatting. If 
 - CDC_API_KEY: `{{env.CDC_API_KEY}}`
 - CDC_API_SECRET: `{{env.CDC_API_SECRET}}`
 - CONFIRMATION_REQUIRED: `{{memory.confirmation_required}}` (Default: true)
-- SKILL_DIR: `$HOME/.openclaw/skills/crypto-agent-trading`
+- SKILL_DIR: The directory containing this `SKILL.md` file. Resolve it from the path you loaded this file from (e.g. if you read `/home/user/skills/crypto-agent-trading/SKILL.md`, then `SKILL_DIR` is `/home/user/skills/crypto-agent-trading`).
 
 ## Environment Setup
 - Both `CDC_API_KEY` and `CDC_API_SECRET` must be set as environment variables before use.
@@ -39,7 +52,7 @@ The scripts handle request signing, error handling, and response formatting. If 
 
 **Prerequisite:** `npx tsx` (Node.js 18+ required; `tsx` is fetched automatically by `npx`).
 
-**Important:** All script paths below use `$SKILL_DIR` which resolves to `$HOME/.openclaw/skills/crypto-agent-trading`. The agent must expand this variable when constructing commands.
+**Important:** All script paths below use `$SKILL_DIR` as a placeholder for this skill's root directory. Resolve it from the path you loaded this SKILL.md from, or `cd` into the skill directory and use `./scripts/...` as the path. Either approach works.
 
 ### Account Commands
 
@@ -237,6 +250,7 @@ When the user asks to buy, sell, or swap crypto, **always** follow this three-st
 ### 3. Memory Management (Opt-in/Out)
 - **To Opt-out:** If user says "stop asking for confirmation" or "enable auto-trade", update `memory.confirmation_required` to `false`.
 - **To Opt-in:** If user says "require confirmation" or "enable manual trade", update `memory.confirmation_required` to `true`.
+- **Platforms without persistent memory:** If your platform does not support `{{memory.*}}`, treat `confirmation_required` as always `true` (safest default).
 
 ### 4. Error Handling
 - All script outputs include an `ok` field. Success is defined ONLY as `ok: true`.

@@ -1,6 +1,6 @@
 # crypto-agent-trading
 
-An agent skill for trading cryptocurrency via the Crypto.com API. Works with OpenClaw, other SKILL.md-compatible agent platforms.
+An agent skill for trading cryptocurrency via the Crypto.com API. Works with any SKILL.md-compatible agent platform (OpenClaw, Cursor, Claude Code, and others).
 
 ## Features
 
@@ -24,14 +24,16 @@ export CDC_API_SECRET="your-api-secret"
 
 ### 2. Install the skill
 
-copy manually:
+Place the `crypto-agent-trading/` folder wherever your agent platform reads skills from, then point the agent at the `SKILL.md` inside it.
 
-```bash
-cp -r crypto-agent-trading ~/.openclaw/skills/
-```
+| Platform | Install location | Activation |
+|----------|-----------------|------------|
+| **OpenClaw** | `~/.openclaw/skills/crypto-agent-trading/` | Say "Initialize the crypto-agent-trading skill" |
+| **Cursor** | `~/.cursor/skills/crypto-agent-trading/` | Add as an agent skill in settings |
+| **Claude Code** | `~/.claude/skills/crypto-agent-trading/` | Point Claude at the `SKILL.md` path |
+| **Other agents** | Any local directory | Point your agent at `SKILL.md` |
 
-- **OpenClaw** — say "Initialize the crypto-agent-trading skill" in any OpenClaw client (TUI, web, or API).
-- **Other agents** — point your agent at the installed `SKILL.md`.
+The skill uses **relative script paths** (`./scripts/...` from the skill root), so it works from any install location without path modifications.
 
 ## Example Conversation
 
