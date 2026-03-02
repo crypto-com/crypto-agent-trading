@@ -24,7 +24,11 @@ export CDC_API_SECRET="your-api-secret"
 
 ### 2. Install the skill
 
-Place the `crypto-agent-trading/` folder wherever your agent platform reads skills from, then point the agent at the `SKILL.md` inside it.
+```bash
+npx skills add crypto-com/crypto-agent-trading -g -y
+```
+
+Or manually copy the skill folder to your agent platform's skill directory:
 
 | Platform | Install location | Activation |
 |----------|-----------------|------------|
