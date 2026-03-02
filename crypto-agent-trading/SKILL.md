@@ -31,7 +31,7 @@ The scripts handle request signing, error handling, and response formatting. If 
 **For every user request, find the matching command below and run it via `npx tsx`. Read the JSON output. Act on it.**
 
 ## Configurations
-- BASE_URL: `https://wapi.crypto.co`
+- BASE_URL: `https://wapi.crypto.com`
 - CDC_API_KEY: `{{env.CDC_API_KEY}}`
 - CDC_API_SECRET: `{{env.CDC_API_SECRET}}`
 - CONFIRMATION_REQUIRED: `{{memory.confirmation_required}}` (Default: true)
