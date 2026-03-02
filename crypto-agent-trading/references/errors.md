@@ -191,6 +191,6 @@ If a command fails unexpectedly:
 
 1. **Check env vars** — `echo $CDC_API_KEY` should return a value (not empty)
 2. **Check API key status** — run `npx tsx ./scripts/account.ts trading-limit` (from the skill directory). If it returns successfully, the key is valid.
-3. **Check network** — can the machine reach `https://wapi.crypto.co`?
+3. **Check network** — can the machine reach `https://wapi.crypto.com`?
 4. **Check Node version** — `node --version` should be 18+
 5. **Check timestamps** — system clock must be accurate for HMAC signing to work

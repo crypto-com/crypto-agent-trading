@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import os from "node:os";
 import { ErrorCode, fail } from "./output.js";
 
-export const BASE_URL = "https://wapi.crypto.co";
+export const BASE_URL = "https://wapi.crypto.com";
 
 function getCredentials(): { apiKey: string; apiSecret: string } {
     const apiKey = process.env.CDC_API_KEY;
