@@ -39,12 +39,21 @@ The scripts handle request signing, error handling, and response formatting. If 
 
 ## Environment Setup
 - Both `CDC_API_KEY` and `CDC_API_SECRET` must be set as environment variables before use.
-- If either is missing, instruct the user to set them via the terminal:
+- **Before running any script**, check whether both variables are set by running:
+  ```bash
+  echo "CDC_API_KEY=${CDC_API_KEY:+set}" "CDC_API_SECRET=${CDC_API_SECRET:+set}"
   ```
-  export CDC_API_KEY="your-api-key"
-  export CDC_API_SECRET="your-api-secret"
-  ```
-- Do NOT accept these values inline in chat or store them in files. Always direct users to set them via terminal for security.
+  If either prints empty instead of `set`, prompt the user:
+  > "Your API credentials are not configured. Please set them in your terminal before I can proceed:
+  > ```
+  > export CDC_API_KEY="your-api-key"
+  > export CDC_API_SECRET="your-api-secret"
+  > ```
+  > You can generate an API key at https://help.crypto.com/en/articles/13843786-api-key-management.
+  > Let me know once you've set them."
+  
+  Then **stop and wait** for the user to confirm before retrying.
+- If a script returns a `MISSING_ENV` error, treat it the same way: prompt the user to set the variables and wait.
 
 ## Script Commands
 
