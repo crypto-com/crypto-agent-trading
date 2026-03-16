@@ -1,0 +1,21 @@
+{
+  "name": "crypto-agent-trading",
+  "version": "1.0.1",
+  "description": "Agent skills for trading cryptocurrency via Crypto.com APIs. Provides two independent skills: Crypto.com App for buy/sell/swap operations and Crypto.com Exchange for spot trading with advanced order types.",
+  "author": "Crypto.com",
+  "homepage": "https://github.com/crypto-com/crypto-agent-trading",
+  "keywords": ["crypto", "trading", "cryptocurrency", "api", "bitcoin", "ethereum", "finance"],
+  "repository": "https://github.com/crypto-com/crypto-agent-trading",
+  "skills": [
+    {
+      "name": "crypto-com-app",
+      "description": "Buy, sell, and swap cryptocurrency via the Crypto.com App API. Supports 400+ tokens with portfolio management and trading limits.",
+      "directory": "crypto-com-app"
+    },
+    {
+      "name": "crypto-com-exchange",
+      "description": "Spot trading on Crypto.com Exchange with advanced order types (limit, market, stop-loss, OCO) and market data access.",
+      "directory": "crypto-com-exchange"
+    }
+  ]
+}
