@@ -37,7 +37,7 @@ All requests (public and private) use the following JSON envelope:
 
 ```
 Content-Type: application/json
-User-Agent: crypto-com-spot/1.0.0 (Skill)
+User-Agent: crypto-com-exchange/1.0.1 (Skill)
 ```
 
 ## Signing Process
@@ -142,7 +142,7 @@ SIG=$(echo -n "$PAYLOAD" | openssl dgst -sha256 -hmac "$SECRET_KEY" | cut -d' ' 
 # Make request
 curl -X POST "${BASE_URL}/${METHOD}" \
   -H "Content-Type: application/json" \
-  -H "User-Agent: crypto-com-spot/1.0.0 (Skill)" \
+  -H "User-Agent: crypto-com-exchange/1.0.1 (Skill)" \
   -d "{
     \"id\": ${ID},
     \"method\": \"${METHOD}\",
@@ -233,7 +233,7 @@ def send_request(method: str, params: dict) -> dict:
         json=req,
         headers={
             "Content-Type": "application/json",
-            "User-Agent": "crypto-com-spot/1.0.0 (Skill)"
+            "User-Agent": "crypto-com-exchange/1.0.1 (Skill)"
         }
     )
     return response.json()
@@ -321,7 +321,7 @@ async function sendRequest(method, params = {}) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "User-Agent": "crypto-com-spot/1.0.0 (Skill)",
+      "User-Agent": "crypto-com-exchange/1.0.1 (Skill)",
     },
     body: JSON.stringify(body),
   });
@@ -345,7 +345,7 @@ Public endpoints don't require `api_key` or `sig`:
 ```bash
 curl -X GET "https://api.crypto.com/exchange/v1/public/get-tickers?instrument_name=BTC_USDT" \
   -H "Content-Type: application/json" \
-  -H "User-Agent: crypto-com-spot/1.0.0 (Skill)"
+  -H "User-Agent: crypto-com-exchange/1.0.1 (Skill)"
 ```
 
 ## Troubleshooting

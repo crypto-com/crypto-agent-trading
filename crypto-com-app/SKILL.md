@@ -1,11 +1,16 @@
 ---
-name: crypto-agent-trading
-description: "Execute crypto trades (buy, sell, swap, exchange) and query account balances, market prices, and transaction history via the Crypto.com API. View weekly trading limits and portfolio positions. Use when the user wants to trade, purchase, sell, or swap cryptocurrency, check token prices or portfolio balances, view recent trades, discover coins, or activate the kill switch. Supports BTC, ETH, CRO, and 200+ tokens across fiat and crypto wallets."
+name: crypto-com-app
+description: "Execute crypto trades (buy, sell, swap, exchange) and query account balances, market prices, and transaction history via the Crypto.com APP API. View weekly trading limits and portfolio positions. Use when the user wants to trade, purchase, sell, or swap cryptocurrency, check token prices or portfolio balances, view recent trades, discover coins, or activate the kill switch. Supports BTC, ETH, CRO, and 200+ tokens across fiat and crypto wallets."
 user-invocable: true
 metadata:
+  author: "Crypto.com"
+  version: "1.0.1"
+  homepage: "https://crypto.com"
+  license: "Apache-2.0"
+  tags: ["crypto", "trading", "api"]
 ---
 
-# Skill: crypto-agent-trading
+# Skill: crypto-com-app
 
 ## Agent Capability Requirements
 
@@ -35,7 +40,7 @@ The scripts handle request signing, error handling, and response formatting. If 
 - CDC_API_KEY: `{{env.CDC_API_KEY}}`
 - CDC_API_SECRET: `{{env.CDC_API_SECRET}}`
 - CONFIRMATION_REQUIRED: `{{memory.confirmation_required}}` (Default: true)
-- SKILL_DIR: The directory containing this `SKILL.md` file. Resolve it from the path you loaded this file from (e.g. if you read `/home/user/skills/crypto-agent-trading/SKILL.md`, then `SKILL_DIR` is `/home/user/skills/crypto-agent-trading`).
+- SKILL_DIR: The directory containing this `SKILL.md` file. Resolve it from the path you loaded this file from (e.g. if you read `/home/user/skills/crypto-com-app/SKILL.md`, then `SKILL_DIR` is `/home/user/skills/crypto-com-app`).
 
 ## Environment Setup
 - Both `CDC_API_KEY` and `CDC_API_SECRET` must be set as environment variables before use.

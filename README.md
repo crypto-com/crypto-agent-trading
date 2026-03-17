@@ -6,8 +6,8 @@ This repository contains two independent skills:
 
 | Skill | Directory | Description |
 |-------|-----------|-------------|
-| **Main App** | `crypto-agent-trading/` | Buy, sell, and swap via the Crypto.com App API |
-| **Exchange** | `crypto-exchange/` | Spot trading on Crypto.com Exchange (limit, market, stop-loss, OCO, and more) |
+| **Main App** | `crypto-com-app/` | Execute trading, check balances, token prices via Crypto.com App |
+| **Exchange** | `crypto-com-exchange/` | Execute trading, check balances, token prices via Crypto.com Exchange |
 
 Each skill has its own `SKILL.md` and references. Install one or both depending on your use case.
 
@@ -38,16 +38,16 @@ export CDC_API_SECRET="your-api-secret"
 #### 2. Install the skill
 
 ```bash
-npx skills add crypto-com/crypto-agent-trading -g -y
+npx skills add crypto-com/crypto-agent-trading/crypto-com-app -g -y
 ```
 
 Or manually copy the skill folder to your agent platform's skill directory:
 
 | Platform | Install location | Activation |
 |----------|-----------------|------------|
-| **OpenClaw** | `~/.openclaw/skills/crypto-agent-trading/` | Say "Initialize the crypto-agent-trading skill" |
-| **Cursor** | `~/.cursor/skills/crypto-agent-trading/` | Add as an agent skill in settings |
-| **Claude Code** | `~/.claude/skills/crypto-agent-trading/` | Point Claude at the `SKILL.md` path |
+| **OpenClaw** | `~/.openclaw/skills/crypto-com-app/` | Say "Initialize the crypto-com-app skill" |
+| **Cursor** | `~/.cursor/skills/crypto-com-app/` | Add as an agent skill in settings |
+| **Claude Code** | `~/.claude/skills/crypto-com-app/` | Point Claude at the `SKILL.md` path |
 | **Other agents** | Any local directory | Point your agent at `SKILL.md` |
 
 The skill uses **relative script paths** (`./scripts/...` from the skill root), so it works from any install location without path modifications.
@@ -75,10 +75,18 @@ User: "Confirm"
 Agent: (runs confirm) "Done! Swapped 200 CRO for 0.00018 BTC."
 ```
 
+### Skill Workflows
+
+The skills work together in typical trading flows:
+
+**Basic Trading**: Check balance (crypto-com-app) → Get quote (crypto-com-app) → Confirm trade (crypto-com-app)
+
+**Portfolio Review**: View balances (crypto-com-app) → Check history (crypto-com-app) → Analyze limits (crypto-com-app)
+
 ### Main App File Structure
 
 ```
-crypto-agent-trading/
+crypto-com-app/
 ├── _meta.json          # OpenClaw package metadata
 ├── SKILL.md            # Core skill: configs, commands, business logic
 ├── CHANGELOG.md        # Version history
@@ -121,7 +129,7 @@ crypto-agent-trading/
 
 ### Setup
 
-1. Copy the `crypto-exchange/` skill folder into your agent platform's skill directory
+1. Copy the `crypto-com-exchange/` skill folder into your agent platform's skill directory
 2. Provide your Crypto.com Exchange API key and secret
 3. The agent reads the `SKILL.md` and handles authentication, signing, and request formatting directly — no scripts or runtime dependencies required
 
@@ -194,7 +202,7 @@ See the Exchange `SKILL.md` for the full reference.
 ### Exchange File Structure
 
 ```
-crypto-exchange/
+crypto-com-exchange/
 ├── SKILL.md                      # Full skill definition — 52 endpoints, parameters, edge cases, agent behavior
 ├── references/
 │   └── authentication.md         # HMAC-SHA256 signing implementation (Python, JavaScript, Bash), error codes

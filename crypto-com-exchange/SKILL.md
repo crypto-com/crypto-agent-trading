@@ -1,8 +1,8 @@
 ---
-name: spot
+name: crypto-com-exchange
 description: Crypto.com Exchange Spot request using the Crypto.com Exchange API. Authentication requires API key and secret key. Supports production and UAT sandbox.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   author: Crypto.com
 license: MIT
 ---
@@ -633,6 +633,6 @@ All private endpoints require HMAC-SHA256 signature.
 
 ### User Agent Header
 
-Include `User-Agent` header with the following string: `crypto-com-spot/1.0.0 (Skill)`
+Include `User-Agent` header with the following string: `crypto-com-exchange/1.0.1 (Skill)`
 
 See [`references/authentication.md`](./references/authentication.md) for implementation details.
