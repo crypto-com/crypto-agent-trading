@@ -279,6 +279,9 @@ When the user asks to buy, sell, or swap crypto, **always** follow this three-st
     - If "List Crypto": run `npx tsx $SKILL_DIR/scripts/account.ts balances crypto`.
     - If "List All": run `npx tsx $SKILL_DIR/scripts/account.ts balances all`. **Crucial:** Display Fiat category first, followed by Crypto balances below.
     - The scripts automatically filter out zero-balance entries. If a category has no entries in the output, display "No holdings" under that header.
+    - **Crypto balances** (`data.crypto`) contain a `note` field ("available for trading") and a `wallets` array. Always clarify to the user that these amounts are what's available for trading — total holdings across all products may be higher.
+    - **Portfolio Allocation:** When crypto balances are queried, the output may include a `portfolio_allocation` array — each entry has a product `name` and `price_native` (USD value). Display this as a summary of the user's asset distribution across products (e.g. Crypto Wallet, Exchange, Earn, Staking, etc.).
+    - **Single token balance** (`balance <SYMBOL>`) output may include a `product_allocation` object — keys are product names (e.g. `crypto_earn`, `staking`, `supercharger`, `crypto_basket`, `airdrop_arena`) and values are the token amounts held in each. Only non-zero products are included. Summarize these allocations to the user alongside the available-for-trading amount so they see the full picture of where their tokens are held.
 
 ### 6. Kill Switch
 - **Trigger:** User says "STOP ALL TRADING", "kill switch", or similar emergency stop command.

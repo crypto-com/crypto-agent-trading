@@ -16,6 +16,26 @@ function filterCrypto(wallets: any[]): any[] {
     });
 }
 
+function parsePortfolioProducts(res: any): any[] | null {
+    if (res.data?.ok !== true) return null;
+    return (res.data.products as any[] ?? []).filter(
+        (p: any) => parseFloat(p.price_native?.amount ?? "0") > 0,
+    );
+}
+
+function parseCurrencyAllocation(res: any): Record<string, string> | null {
+    if (res.data?.ok !== true) return null;
+    const allocation: Record<string, string> = {};
+    for (const [key, val] of Object.entries(res.data)) {
+        if (key === "ok") continue;
+        const entry = val as any;
+        if (entry?.amount && parseFloat(entry.amount) > 0) {
+            allocation[key] = entry.amount;
+        }
+    }
+    return Object.keys(allocation).length > 0 ? allocation : null;
+}
+
 // ---------------------------------------------------------------------------
 // Commands
 // ---------------------------------------------------------------------------
@@ -37,9 +57,19 @@ async function balances(scope: string) {
     }
 
     if (includeCrypto) {
-        const res = await apiGet("/v1/crypto-account");
-        assertOk(res, "Crypto balance fetch");
-        result.crypto = filterCrypto(res.data.account.wallets);
+        const [cryptoRes, portfolioRes] = await Promise.all([
+            apiGet("/v1/crypto-account"),
+            apiGet("/v1/portfolio"),
+        ]);
+        assertOk(cryptoRes, "Crypto balance fetch");
+        result.crypto = {
+            note: "available for trading",
+            wallets: filterCrypto(cryptoRes.data.account.wallets),
+        };
+        const products = parsePortfolioProducts(portfolioRes);
+        if (products) {
+            result.portfolio_allocation = products;
+        }
     }
 
     success(result);
@@ -51,18 +81,29 @@ async function balance(symbol: string) {
     }
 
     const upper = symbol.toUpperCase();
-    const res = await apiGet("/v1/crypto-account");
-    assertOk(res, "Crypto balance fetch");
+    const [cryptoRes, allocationRes] = await Promise.all([
+        apiGet("/v1/crypto-account"),
+        apiGet(`/v1/portfolio/currency_allocation?currency=${upper}`),
+    ]);
+    assertOk(cryptoRes, "Crypto balance fetch");
 
-    const wallet = (res.data.account.wallets as any[]).find(
+    const wallet = (cryptoRes.data.account.wallets as any[]).find(
         (w: any) => w.currency.toUpperCase() === upper,
     );
 
-    success({
+    const result: Record<string, any> = {
         currency: upper,
         available: wallet?.available?.amount ?? "0",
+        available_note: "available for trading",
         balance: wallet?.balance?.amount ?? "0",
-    });
+    };
+
+    const allocation = parseCurrencyAllocation(allocationRes);
+    if (allocation) {
+        result.product_allocation = allocation;
+    }
+
+    success(result);
 }
 
 async function tradingLimit() {
