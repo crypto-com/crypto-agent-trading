@@ -27,13 +27,16 @@ function getSignedHeaders(method: string, path: string, body?: unknown): Record<
         .digest("base64");
     const userAgent = `Node/${process.version} ${os.platform()}/${os.release()}-cdc-clawbot/1.0`;
 
-    return {
-        "Content-Type": "application/json",
+    const headers: Record<string, string> = {
         "User-Agent": userAgent,
         "Cdc-Api-Key": apiKey,
         "Cdc-Api-Timestamp": timestamp,
         "Cdc-Api-Signature": signature,
     };
+    if (body) {
+        headers["Content-Type"] = "application/json";
+    }
+    return headers;
 }
 
 interface ApiResponse {
