@@ -23,6 +23,7 @@ Each skill has its own `SKILL.md` and references. Install one or both depending 
 - **History**: View recent transaction history
 - **Trading Limits**: Check weekly trading budget usage
 - **Kill Switch**: Emergency API key revocation
+- **Cash Management**: Deposit and withdraw fiat currencies, view bank accounts, check payment networks, and email deposit instructions
 
 ### Quickstart
 
@@ -97,8 +98,9 @@ crypto-com-app/
     │   ├── api.ts      # HTTP client, HMAC signing
     │   └── output.ts   # Structured output + error codes
     ├── account.ts      # Balances, trading limit, kill switch
-    ├── trade.ts        # Quotations, orders, history
-    └── coins.ts        # Coin discovery
+    ├── coins.ts        # Coin discovery
+    ├── fiat.ts         # Cash deposits, withdrawals, bank accounts
+    └── trade.ts        # Quotations, orders, history
 ```
 
 ### Prerequisites

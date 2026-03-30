@@ -1,10 +1,10 @@
 ---
 name: crypto-com-app
-description: "Execute crypto trades (buy, sell, swap, exchange) and query account balances, market prices, and transaction history via the Crypto.com APP API. View weekly trading limits and portfolio positions. Use when the user wants to trade, purchase, sell, or swap cryptocurrency, check token prices or portfolio balances, view recent trades, discover coins, or activate the kill switch. Supports BTC, ETH, CRO, and 200+ tokens across fiat and crypto wallets."
+description: "Execute crypto trades (buy, sell, swap, exchange), manage cash deposits and withdrawals, and query account balances, market prices, and transaction history via the Crypto.com APP API. View weekly trading limits, portfolio positions, bank accounts, and payment networks. Use when the user wants to trade cryptocurrency, deposit or withdraw cash, check bank account details, view deposit instructions, or manage fiat wallet operations. Supports BTC, ETH, CRO, and 200+ tokens across fiat and crypto wallets."
 user-invocable: true
 metadata:
   author: "Crypto.com"
-  version: "1.0.1"
+  version: "1.0.2"
   homepage: "https://crypto.com"
   license: "Apache-2.0"
   tags: ["crypto", "trading", "api"]
@@ -152,6 +152,69 @@ npx tsx $SKILL_DIR/scripts/coins.ts search '{"keyword":"BTC","sort_by":"rank","s
 
 **Key response fields per coin:** `rails_id` (identical to `currency_id` / `currency` in trade and account APIs — use this to cross-reference), `price_native`, `price_usd`, `percent_change_*_native` (price performance over past timeframes, e.g. `percent_change_24h_native`).
 
+### Cash (Fiat) Commands
+
+Cash commands handle deposits, withdrawals, and bank account management.
+
+```bash
+# Cash overview — balances + available payment networks per currency
+npx tsx $SKILL_DIR/scripts/fiat.ts discover
+
+# Payment networks for a currency
+npx tsx $SKILL_DIR/scripts/fiat.ts payment-networks <CURRENCY>
+
+# Deposit method details (bank routing info)
+npx tsx $SKILL_DIR/scripts/fiat.ts deposit-methods <CURRENCY> <DEPOSIT_METHOD>
+
+# Email deposit instructions to user
+npx tsx $SKILL_DIR/scripts/fiat.ts email-deposit-info <CURRENCY> <VIBAN_TYPE>
+
+# Withdrawal details (quotas, fees, minimums)
+npx tsx $SKILL_DIR/scripts/fiat.ts withdrawal-details <CURRENCY> <VIBAN_TYPE>
+
+# Create withdrawal order (returns order with fees + receivable amount)
+npx tsx $SKILL_DIR/scripts/fiat.ts create-withdrawal-order '<json-params>'
+
+# Execute withdrawal (may prompt for TOTP authenticator code)
+npx tsx $SKILL_DIR/scripts/fiat.ts create-withdrawal <ORDER_ID>
+
+# List linked bank accounts
+npx tsx $SKILL_DIR/scripts/fiat.ts bank-accounts [CURRENCY]
+```
+
+**Key parameters:**
+
+| Parameter | Description | Example values |
+|-----------|-------------|----------------|
+| `CURRENCY` | Uppercase currency code | `USD`, `EUR`, `GBP`, `AUD` |
+| `DEPOSIT_METHOD` | Network ID from `payment-networks` | `us_ach`, `sepa`, `uk_fps` |
+| `VIBAN_TYPE` | Same as deposit method / withdrawal network | `us_ach`, `sepa`, `uk_fps` |
+
+**Withdrawal order JSON params:**
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `currency` | Yes | Currency code (e.g. `"USD"`) |
+| `amount` | Yes | Amount as string (e.g. `"500.00"`) |
+| `viban_type` | Yes | Payment network (e.g. `"us_ach"`) |
+| `bank_account_id` | No | Specific bank account ID |
+
+**Example — "How do I deposit USD?":**
+
+1. Run: `npx tsx $SKILL_DIR/scripts/fiat.ts payment-networks USD`
+2. Read `data` array — each entry has `deposit_push_payment_networks` (e.g. `["us_ach", "us_wire_transfer"]`)
+3. For details: `npx tsx $SKILL_DIR/scripts/fiat.ts deposit-methods USD us_ach`
+4. Read `data` array — contains `bank_details` with routing number, account number, etc.
+
+**Example — "Withdraw 500 USD via ACH":**
+
+1. Run: `npx tsx $SKILL_DIR/scripts/fiat.ts withdrawal-details USD us_ach` — check quotas and fees
+2. Run: `npx tsx $SKILL_DIR/scripts/fiat.ts create-withdrawal-order '{"currency":"USD","amount":"500","viban_type":"us_ach"}'`
+3. Read `data.id` (order ID), `data.fee`, `data.receivable_amount` from response
+4. **Confirm with user:** "Withdraw 500 USD via ACH. Fee: {fee}. You'll receive: {receivable_amount}. Confirm?"
+5. If YES: `npx tsx $SKILL_DIR/scripts/fiat.ts create-withdrawal <order-id>`
+6. If TOTP required, the script will prompt for a 6-digit authenticator code on stderr
+
 ### Output Format
 
 Every script prints structured JSON to stdout:
@@ -217,6 +280,11 @@ These are the *specific* API error codes that appear inside the `error_message` 
 | `failed_to_create_transaction` | Transaction creation failed | Retry or contact support |
 | `key_not_active` | API key revoked or expired | Generate a new API key, update env vars |
 | `api_key_not_found` | Key doesn't exist or belongs to another user | Verify correct key is set in `CDC_API_KEY` |
+| `totp_required` | Withdrawal needs 2FA code | Script handles automatically — prompts user for authenticator code |
+| `withdrawal_limit_exceeded` | Daily/monthly quota exceeded | Show limits via `withdrawal-details`, reduce amount |
+| `invalid_bank_account` | Bank account not eligible | Check `bank-accounts` for valid accounts with `status: completed` |
+| `withdrawal_cooling_off` | Recently changed withdrawal settings | Wait for cooling-off period, report `error_message` to user |
+| `email_cooldown` | Too many deposit info emails | Wait for cooldown period (shown in error), try again later |
 
 For dynamic errors (limit exceeded, currency disabled, cooling-off, etc.), report the `error` and `error_message` directly to the user. For full details, see [references/errors.md](references/errors.md).
 
@@ -274,6 +342,10 @@ When the user asks to buy, sell, or swap crypto, **always** follow this three-st
 ### 5. Account & History
 - **History:** Run `npx tsx $SKILL_DIR/scripts/trade.ts history` — display the entries from `data`.
 - **Weekly Trading Limit:** Run `npx tsx $SKILL_DIR/scripts/account.ts trading-limit` — display as: "📊 Weekly Trading Limit: {data.used} / {data.limit} USD (Remaining: {data.remaining} USD)".
+- **Fiat vs Crypto balance routing:** When the user asks about a specific currency balance, determine whether it is a **fiat currency** (USD, EUR, GBP, AUD, SGD, CAD, BRL, etc.) or a **crypto token** (BTC, ETH, CRO, etc.).
+    - **Fiat currency** → run `npx tsx $SKILL_DIR/scripts/account.ts balances fiat` (shows all fiat balances) or `npx tsx $SKILL_DIR/scripts/fiat.ts discover` (shows balances + payment networks). **Never** use `balance <SYMBOL>` for fiat currencies — it queries the crypto wallet and will always return 0.
+    - **Crypto token** → run `npx tsx $SKILL_DIR/scripts/account.ts balance <SYMBOL>`.
+    - **Unsure** → run `npx tsx $SKILL_DIR/scripts/account.ts balances all` to show both fiat and crypto.
 - **Balances (Categorized):**
     - If "List Fiat": run `npx tsx $SKILL_DIR/scripts/account.ts balances fiat`.
     - If "List Crypto": run `npx tsx $SKILL_DIR/scripts/account.ts balances crypto`.
@@ -298,3 +370,53 @@ When the user asks to buy, sell, or swap crypto, **always** follow this three-st
 - **Crypto Header:** "🪙 Crypto Balances"
 - Always list Fiat section before Crypto section when both are requested.
 - **Never display zero-balance assets.** Only show assets with a balance greater than 0. If all assets in a category are zero, show "No holdings" under that header.
+
+### 8. Cash Deposit & Withdrawal
+
+**Terminology:** Use "cash" (not "fiat") in user-facing messages. Say "your cash balance" not "your fiat balance".
+
+**Currency disambiguation:** If the user doesn't specify a currency, run `discover` first.
+- **One currency with balance** → auto-select it and proceed.
+- **Multiple currencies with balances** → present the list and ask the user to choose before proceeding.
+- **No balances** → inform: "You don't have any cash balances yet." and stop.
+
+**Deposit flow:**
+1. Run `discover` to show the user their cash currencies and available networks
+2. User picks a currency and network — run `deposit-methods` to get bank details
+3. Present the bank details (routing number, account number, bank name, reference)
+4. Optionally run `email-deposit-info` to email instructions to the user
+5. **Rate limit:** `email-deposit-info` is limited to 5 requests per 30 minutes. On cooldown error, inform user and show the `cooldown_in_seconds` value.
+
+**Withdrawal flow:**
+1. Run `bank-accounts <currency>` to list eligible accounts (filter to `status: "completed"` only)
+   - **One eligible account** → auto-select it
+   - **Multiple eligible accounts** → present the list (bank name, account identifier, networks) and ask user to choose
+   - **No eligible accounts** → inform: "No eligible bank accounts found for {currency}. You need to link a bank account first." and stop
+2. Run `withdrawal-details` to check quotas, fees, and minimums
+3. Run `create-withdrawal-order` with amount, network, and `bank_account_id` from step 1 — returns order with fees
+4. **ALWAYS confirm with user** before executing (regardless of `memory.confirmation_required`):
+   - Show: amount, fee, receivable amount, network, destination bank account, processing time
+   - Require explicit "YES" to proceed
+5. Run `create-withdrawal` with the order ID
+6. **TOTP handling:** If the API returns `totp_required`, the script prompts for a 6-digit authenticator code on stderr. The agent should tell the user: "Please enter your 6-digit authenticator code when prompted." Never try to generate or bypass the TOTP.
+
+**Bank accounts:**
+- Run `bank-accounts` to list linked accounts. Filter by currency if specified.
+- Only accounts with `status: "completed"` are eligible for withdrawals.
+- Each account shows `withdrawal_payment_networks` — use these as valid `viban_type` values.
+
+**Deposit methods — vendor selection:**
+- `deposit-methods` returns a `vendor_list` array. Each vendor has a `status` field.
+- Only show vendors with `status: "created"` (active). Ignore `"uncreated"` vendors.
+- If multiple created vendors exist, default to the first one in the list.
+
+**Cash commands quick reference:**
+
+| User says | Commands to run |
+|-----------|----------------|
+| "How do I deposit USD?" | `payment-networks USD` then `deposit-methods USD <network>` |
+| "Email me deposit instructions" | `email-deposit-info <currency> <viban_type>` |
+| "Show my bank accounts" | `bank-accounts` |
+| "What are my withdrawal limits?" | `withdrawal-details <currency> <viban_type>` |
+| "Withdraw 500 USD" | `withdrawal-details` -> `create-withdrawal-order` -> confirm -> `create-withdrawal` |
+| "What currencies can I deposit?" | `discover` |

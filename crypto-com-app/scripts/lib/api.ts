@@ -45,7 +45,8 @@ interface ApiResponse {
 }
 
 async function request(method: string, path: string, body?: unknown): Promise<ApiResponse> {
-    const headers = getSignedHeaders(method, path, body);
+    const signPath = path.split("?")[0];
+    const headers = getSignedHeaders(method, signPath, body);
     const url = `${BASE_URL}${path}`;
 
     const res = await fetch(url, {
