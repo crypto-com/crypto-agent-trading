@@ -24,7 +24,7 @@ Each skill contains a `SKILL.md` with:
 
 | Skill | Purpose | When to Use |
 |-------|---------|-------------|
-| crypto-com-app | Trading and market data | User wants to buy/sell/swap crypto, check balances, token price, discover coins and view trades through crypto.com App |
+| crypto-com-app | Trading, cash management, and market data | User wants to buy/sell/swap crypto, check balances, token price, discover coins, view trades, deposit/withdraw fiat currencies, or manage bank accounts through crypto.com App |
 | crypto-com-exchange | Trading and market data | User wants to buy/sell/swap crypto, check prices, discover coins through crypto.com Exchange |
 
 ## Environment Setup
