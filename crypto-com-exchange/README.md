@@ -1,38 +1,51 @@
-# Crypto.com Exchange Spot Skill
+# Crypto.com Exchange Skill
 
-AI agent skill for trading on Crypto.com Exchange Spot markets via REST API.
+AI agent skill for trading on Crypto.com Exchange via the [`cdcx` CLI](https://github.com/crypto-com/cdcx-cli).
 
 ## What This Skill Does
 
 Gives your AI agent the ability to:
-- Place, amend, and cancel spot orders (LIMIT, MARKET)
+- Fetch market data (prices, orderbook, candles, instruments) — no auth needed
+- Place, amend, and cancel spot and derivatives orders (LIMIT, MARKET)
 - Create advanced orders (STOP_LOSS, STOP_LIMIT, TAKE_PROFIT, TAKE_PROFIT_LIMIT)
-- Manage OCO, OTO, and OTOCO order groups
+- Manage OCO, OTO, and OTOCO bracket order groups
 - Query balances, positions, order history, and trade history
 - Withdraw funds and check deposit/withdrawal status
-- Read market data (tickers, order book, candlesticks, trades)
+- Paper trade with live market prices (no auth, no risk)
+- Stream real-time market data via WebSocket
+
+## How It Works
+
+This skill delegates all API interaction to the `cdcx` CLI binary, which handles:
+- Authentication and HMAC-SHA256 request signing
+- Safety tier enforcement (read / sensitive_read / mutate / dangerous)
+- Dry-run previews before live execution
+- Output formatting (JSON, table, NDJSON)
+- Rate limit awareness
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `SKILL.md` | Main skill definition — 52 endpoints, parameters, edge cases, agent behavior |
-| `references/authentication.md` | HMAC-SHA256 signing implementation (Python, JavaScript, Bash), error codes |
-| `LICENSE.md` | MIT License |
+| `SKILL.md` | Main skill definition — capabilities, commands, workflows, agent behavior |
+| `references/install.md` | Installation methods (npm, curl, cargo, plugin) |
+| `references/authentication.md` | Credential setup, profiles, environments, error codes |
 
-## Setup
+## Quick Start
 
-1. Install the skill files into your agent
-2. Provide your Crypto.com Exchange API key and secret
-3. The agent handles authentication, signing, and request formatting automatically
+```bash
+# 1. Install
+npx @cryptocom/cdcx-cli@latest --version
 
-### Getting API Keys
+# 2. Authenticate
+cdcx auth login --oauth
 
-1. Log in to [Crypto.com Exchange](https://crypto.com/exchange)
-2. Go to **Settings → API Keys**
-3. Create a new key with desired permissions (Spot Trading, Withdrawal, etc.)
-4. Set IP whitelist for production use
-5. Store the API key and secret securely
+# 3. Verify
+cdcx account summary -o json
+
+# 4. Trade
+cdcx trade order BUY BTC_USDT 0.01 --type LIMIT --price 50000 --dry-run -o json
+```
 
 ## Environments
 
@@ -41,23 +54,12 @@ Gives your AI agent the ability to:
 | Production | `https://api.crypto.com/exchange/v1/` |
 | UAT Sandbox | `https://uat-api.3ona.co/exchange/v1/` |
 
-UAT Sandbox requires separate credentials (institutional access only).
-
 ## Coverage
 
-- **52 endpoints** — public market data, private trading, advanced orders, wallet, account management
-- **Production-tested** — every endpoint verified against live API with real orders
-- **66 edge cases documented** — param types, pagination quirks, error codes, validation rules
-
-## Key Things Your Agent Should Know
-
-- Order params (`price`, `quantity`, `notional`, `ref_price`, `amount`) must be **strings**
-- `limit` must be a **number** (not string)
-- Instrument names are case-sensitive: `BTC_USD` not `btc_usd`
-- Public endpoints = GET only, Private endpoints = POST only
-- All private requests use JSON body with HMAC-SHA256 signature
-
-See `SKILL.md` for the full reference.
+- **86+ endpoints** via OpenAPI-driven CLI (auto-discovered, always current)
+- **Safety tiers** — read-only by default, opt-in for mutations
+- **Paper trading** — test strategies without real funds
+- **Streaming** — real-time WebSocket data
 
 ## License
 
