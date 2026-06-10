@@ -284,6 +284,8 @@ cdcx history trades --start-time $(date -v-1d +%s)000 -o json  # Yesterday's fil
 
 ### Emergency Flatten
 
+**Requires explicit user CONFIRM before execution — this cancels all orders and closes all positions at market.**
+
 ```
 cdcx trade cancel-all --yes -o json                 # Cancel all orders
 cdcx advanced cancel-all --yes -o json              # Cancel all advanced
@@ -302,7 +304,7 @@ cdcx account positions -o json                      # Verify flat
 - `close-position` is async — verify with `cdcx account positions` afterwards
 - Advanced orders live in their own namespace — not visible in `cdcx trade open-orders`
 - Batch max is 10 orders per call
-- OTOCO structure: Leg 1 = entry LIMIT, Leg 2 = take-profit trigger, Leg 3 = stop-loss trigger
+- OTOCO structure: Leg 1 = entry LIMIT, Leg 2 = stop-loss trigger, Leg 3 = take-profit trigger
 - OTO second leg must be a trigger type (STOP_LOSS, STOP_LIMIT, TAKE_PROFIT, TAKE_PROFIT_LIMIT)
 - `get-open-orders` has no pagination — returns ALL open orders
 - Withdrawal amount is gross (fee deducted from it)

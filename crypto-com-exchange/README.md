@@ -38,7 +38,7 @@ This skill delegates all API interaction to the `cdcx` CLI binary, which handles
 npx @cryptocom/cdcx-cli@latest --version
 
 # 2. Authenticate
-cdcx setup
+cdcx auth login --oauth
 
 # 3. Verify
 cdcx account summary -o json

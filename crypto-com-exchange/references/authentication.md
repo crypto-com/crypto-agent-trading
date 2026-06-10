@@ -52,3 +52,5 @@ When running as an MCP server, credentials from `cdcx auth login --oauth` are us
   }
 }
 ```
+
+To enable dangerous-tier operations (cancel-all, withdrawals) via MCP, add `"--allow-dangerous"` to the args array. Only do this if you understand the risks.
