@@ -83,7 +83,7 @@ async function balance(symbol: string) {
     const upper = symbol.toUpperCase();
     const [cryptoRes, allocationRes] = await Promise.all([
         apiGet("/v1/crypto-account"),
-        apiGet(`/v1/portfolio/currency_allocation?currency=${upper}`),
+        apiGet(`/v1/currency_allocation?currency=${encodeURIComponent(upper)}`),
     ]);
     assertOk(cryptoRes, "Crypto balance fetch");
 
